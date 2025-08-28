@@ -1,0 +1,5 @@
+{
+  "name": "WanderGenius: AI Trip Planner",
+  "description": "An AI-powered application that generates personalized 1-day trip itineraries based on user-provided locations and preferences such as activity type, interests, and kid-friendliness.",
+  "requestFramePermissions": []
+}
