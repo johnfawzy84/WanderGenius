@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { TripPlan, Activity } from '../types';
 import MapDisplay from './MapDisplay';
 import WeatherDisplay from './WeatherDisplay';
@@ -10,7 +11,10 @@ interface TripPlanDisplayProps {
   findingAlternativeIndex: number | null;
 }
 
-const getWeatherIcon = (condition: string): string => {
+const getWeatherIcon = (condition?: string): string => {
+  if (!condition) {
+    return '🌍'; // Default icon
+  }
   const lowerCaseCondition = condition.toLowerCase();
   if (lowerCaseCondition.includes('sun') || lowerCaseCondition.includes('clear')) return '☀️';
   if (lowerCaseCondition.includes('cloud')) return '☁️';
@@ -28,20 +32,7 @@ const ActivityCard: React.FC<{
   isFindingAlternative: boolean;
 }> = ({ activity, index, onFindAlternative, isFindingAlternative }) => {
     return (
-        <div className="bg-gray-800/60 rounded-lg shadow-lg transition-transform duration-300 hover:scale-102 hover:shadow-xl border border-gray-700/50 overflow-hidden">
-            {activity.generatedImageUrl ? (
-                <img 
-                    src={activity.generatedImageUrl} 
-                    alt={`AI-generated representation of ${activity.title}`}
-                    className="w-full h-48 object-cover"
-                />
-            ) : (
-                <div className="w-full h-48 bg-gray-700/50 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                </div>
-            )}
+        <div className="bg-gray-800/60 rounded-lg shadow-lg transition-transform duration-300 hover:scale-102 hover:shadow-xl border border-gray-700/50">
             <div className="p-5">
                 <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-bold text-white pr-4">{activity.title}</h3>
@@ -65,6 +56,18 @@ const ActivityCard: React.FC<{
                 )}
                 <p className="text-gray-300 leading-relaxed mb-4">{activity.description}</p>
                 
+                {activity.cost && (
+                    <div className="mb-4">
+                        <p className="text-sm font-semibold text-gray-300">
+                            <span className="text-purple-400">Est. Cost: </span>
+                            {activity.cost.amount > 0 ? 
+                                `${new Intl.NumberFormat('en-US', { style: 'currency', currency: activity.cost.currency, minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(activity.cost.amount)}` 
+                                : 'Free'}
+                            {activity.cost.details && <span className="text-gray-400 font-normal ml-2">({activity.cost.details})</span>}
+                        </p>
+                    </div>
+                )}
+
                 {activity.reviews && (
                     <div className="mb-4">
                         {typeof activity.reviews.rating === 'number' && (
@@ -112,19 +115,81 @@ const ActivityCard: React.FC<{
 
 
 const TripPlanDisplay: React.FC<TripPlanDisplayProps> = ({ plan, onFindAlternative, findingAlternativeIndex }) => {
+  const [copyStatus, setCopyStatus] = useState('');
+
   const locationsWithCoords = plan.itinerary.filter(
     (activity): activity is Activity & { latitude: number; longitude: number; } =>
       typeof activity.latitude === 'number' && typeof activity.longitude === 'number'
   );
 
+  const handleShare = async () => {
+    setCopyStatus('');
+    const planJson = JSON.stringify(plan);
+    const encodedPlan = btoa(planJson);
+    const shareUrl = `${window.location.origin}${window.location.pathname}#plan=${encodedPlan}`;
+
+    const shareData = {
+      title: `My Trip: ${plan.tripTitle}`,
+      text: `Check out this 1-day trip plan for ${plan.tripTitle}!`,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error("Share failed:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopyStatus('Link copied to clipboard!');
+        setTimeout(() => setCopyStatus(''), 3000);
+      } catch (err) {
+        console.error("Failed to copy link:", err);
+        setCopyStatus('Failed to copy link.');
+        setTimeout(() => setCopyStatus(''), 3000);
+      }
+    }
+  };
+
   return (
-    <div className="mt-10 animate-fade-in">
+    <div id="trip-plan-display" className="mt-10 animate-fade-in">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 mb-2">
           {plan.tripTitle}
         </h2>
         <p className="text-gray-400 max-w-2xl mx-auto">{plan.summary}</p>
+        <div className="mt-4">
+            <button
+                onClick={handleShare}
+                className="inline-flex items-center justify-center text-sm font-medium text-purple-300 hover:text-white bg-purple-900/40 hover:bg-purple-800/60 rounded-md px-4 py-2 transition-all duration-200"
+                aria-label="Share this trip plan"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+                Share Trip
+            </button>
+            {copyStatus && (
+                <p className="text-sm text-green-400 mt-2 transition-opacity duration-300" role="status">
+                {copyStatus}
+                </p>
+            )}
+        </div>
       </div>
+
+      {plan.totalEstimatedCost && (
+        <div className="mb-8 bg-gray-800/50 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-gray-700 text-center">
+          <h3 className="font-bold text-lg text-purple-300 uppercase tracking-wider">Total Estimated Cost</h3>
+          <p className="text-3xl font-bold text-white mt-1">
+              {new Intl.NumberFormat('en-US', { style: 'currency', currency: plan.totalEstimatedCost.currency, minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(plan.totalEstimatedCost.amount)}
+          </p>
+          {plan.totalEstimatedCost.details && (
+            <p className="text-gray-400 text-sm mt-1">{plan.totalEstimatedCost.details}</p>
+          )}
+        </div>
+      )}
 
       {plan.weather && <WeatherDisplay weather={plan.weather} />}
 

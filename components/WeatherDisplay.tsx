@@ -6,7 +6,10 @@ interface WeatherDisplayProps {
   weather: WeatherInfo;
 }
 
-const getWeatherIcon = (condition: string): string => {
+const getWeatherIcon = (condition?: string): string => {
+  if (!condition) {
+    return '🌍'; // Default icon
+  }
   const lowerCaseCondition = condition.toLowerCase();
   if (lowerCaseCondition.includes('sun') || lowerCaseCondition.includes('clear')) return '☀️';
   if (lowerCaseCondition.includes('cloud')) return '☁️';

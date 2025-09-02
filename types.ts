@@ -1,3 +1,4 @@
+
 export interface TripFormData {
   location: string;
   startAddress?: string;
@@ -7,6 +8,13 @@ export interface TripFormData {
   startTime?: string;
   endTime?: string;
   tripDate: string;
+  likedLocationExample?: string;
+}
+
+export interface Cost {
+  amount: number;
+  currency: string;
+  details?: string;
 }
 
 export interface Activity {
@@ -20,20 +28,20 @@ export interface Activity {
     duration: string;
     mode: string;
   };
-  generatedImageUrl?: string;
   reviews?: {
     rating: number | null;
     summary: string;
   };
   weatherOnSite?: {
     temperature: string;
-    condition: string;
+    condition?: string;
   };
+  cost?: Cost;
 }
 
 export interface WeatherInfo {
   temperature: string;
-  condition: string;
+  condition?: string;
   forecast: string;
 }
 
@@ -56,4 +64,5 @@ export interface TripPlan {
   itinerary: Activity[];
   weather?: WeatherInfo;
   sources?: GroundingChunk[];
+  totalEstimatedCost?: Cost;
 }

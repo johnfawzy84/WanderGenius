@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { TripFormData, TripPlan, Activity } from '../types';
 
@@ -8,7 +9,7 @@ if (!process.env.API_KEY) {
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateTripPlan = async (formData: TripFormData): Promise<TripPlan> => {
-  const { location, activityType, interests, isKidFriendly, startAddress, startTime, endTime, tripDate } = formData;
+  const { location, activityType, interests, isKidFriendly, startAddress, startTime, endTime, tripDate, likedLocationExample } = formData;
 
   const friendlyTripDate = tripDate === 'today' ? 'today' : new Date(tripDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
@@ -17,8 +18,8 @@ export const generateTripPlan = async (formData: TripFormData): Promise<TripPlan
     Your entire response MUST be a single JSON code block.
 
     **JSON Structure:**
-    The root object should have "tripTitle", "summary", "weather" (with "temperature", "condition", "forecast"), and an "itinerary" array.
-    Each object in the "itinerary" array must have: "timeOfDay", "title", "description", "location", "latitude", "longitude", "reviews" (with "rating", "summary"), "weatherOnSite" (with "temperature", "condition"), and "travelFromPrevious" (with "duration", "mode", or null).
+    The root object should have "tripTitle", "summary", "totalEstimatedCost" (with "amount", "currency", "details"), "weather" (with "temperature", "condition", "forecast"), and an "itinerary" array.
+    Each object in the "itinerary" array must have: "timeOfDay", "title", "description", "location", "latitude", "longitude", "reviews" (with "rating", "summary"), "weatherOnSite" (with "temperature", "condition"), "travelFromPrevious" (with "duration", "mode", or null), and "cost" (with "amount", "currency", "details").
 
     **Instructions:**
     1.  **Use Google Search for the weather forecast** for ${friendlyTripDate} in "${location}" to populate the main "weather" object.
@@ -27,6 +28,8 @@ export const generateTripPlan = async (formData: TripFormData): Promise<TripPlan
     4.  **For each activity, estimate travel time** in "travelFromPrevious".
     5.  **For each activity, use Google Search to find details**: a review summary/rating and latitude/longitude.
     6.  **For each activity, provide a specific weather forecast** in "weatherOnSite".
+    7.  **For each activity, estimate the cost**. Provide a "cost" object with "amount", "currency" (e.g., "USD"), and "details" (e.g., "per person" or "for entry"). If an activity is free, the amount should be 0.
+    8.  **Calculate and provide a "totalEstimatedCost"** object for the entire day's plan, summing up the costs of all activities.
 
     **User Preferences:**
     - **Location:** ${location}
@@ -37,6 +40,7 @@ export const generateTripPlan = async (formData: TripFormData): Promise<TripPlan
     - **Type:** ${activityType}
     - **Interests:** ${interests}
     - **Kid-Friendly:** ${isKidFriendly ? 'Yes' : 'No'}
+    ${likedLocationExample ? `- **Inspiration:** The user likes places similar to "${likedLocationExample}". Try to capture a similar vibe or type of experience.` : ''}
   `;
 
   try {
@@ -62,35 +66,6 @@ export const generateTripPlan = async (formData: TripFormData): Promise<TripPlan
         parsedPlan = JSON.parse(jsonMatch[1]);
     }
     
-    // Generate images for each activity in parallel
-    const imageGenerationPromises = parsedPlan.itinerary.map(async (activity) => {
-      const imagePrompt = `A beautiful, high-quality, photorealistic 16:9 image of: ${activity.title}. The scene should represent the essence of the activity described as "${activity.description}" at the location "${activity.location || location}".`;
-      try {
-        const imageResponse = await ai.models.generateImages({
-          model: 'imagen-4.0-generate-001',
-          prompt: imagePrompt,
-          config: {
-            numberOfImages: 1,
-            outputMimeType: 'image/jpeg',
-            aspectRatio: '16:9',
-          },
-        });
-
-        if (imageResponse.generatedImages && imageResponse.generatedImages.length > 0) {
-          const base64ImageBytes = imageResponse.generatedImages[0].image.imageBytes;
-          return `data:image/jpeg;base64,${base64ImageBytes}`;
-        }
-      } catch (imgErr) {
-        console.warn(`Could not generate image for "${activity.title}":`, imgErr);
-      }
-      return undefined;
-    });
-
-    const generatedImageUrls = await Promise.all(imageGenerationPromises);
-    parsedPlan.itinerary.forEach((activity, index) => {
-      activity.generatedImageUrl = generatedImageUrls[index];
-    });
-
     const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
     return { ...parsedPlan, sources };
 
@@ -106,17 +81,18 @@ export const findAlternativeActivity = async (
   activityToReplace: Activity,
   activityIndex: number,
 ): Promise<Activity> => {
-  const { location, activityType, interests, isKidFriendly, startAddress, startTime, endTime, tripDate } = formData;
+  const { location, activityType, interests, isKidFriendly, startAddress, startTime, endTime, tripDate, likedLocationExample } = formData;
   const previousActivity = activityIndex > 0 ? currentPlan.itinerary[activityIndex - 1] : null;
   const friendlyTripDate = tripDate === 'today' ? 'today' : new Date(tripDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
   const prompt = `
     You are an expert travel planner. A user wants an alternative for one activity.
-    Your response must be a single JSON object for the new activity. The object should contain: "timeOfDay", "title", "description", "location", "latitude", "longitude", "reviews", "weatherOnSite", and "travelFromPrevious".
+    Your response must be a single JSON object for the new activity. The object should contain: "timeOfDay", "title", "description", "location", "latitude", "longitude", "reviews", "weatherOnSite", "travelFromPrevious", and "cost".
 
     **Original User Preferences:**
     - Location: ${location}, Date: ${friendlyTripDate}, Type: ${activityType}, Interests: ${interests}, Kid-Friendly: ${isKidFriendly ? 'Yes' : 'No'}
     ${startAddress ? `- Start Address: ${startAddress}` : ''} ${startTime ? `- Start Time: ${startTime}`: ''} ${endTime ? `- End Time: ${endTime}`: ''}
+    ${likedLocationExample ? `- Inspiration: The user likes places similar to "${likedLocationExample}". Keep this in mind for the alternative.` : ''}
     
     ${currentPlan.weather ? `**Weather Forecast:** ${currentPlan.weather.forecast}. The new activity must be appropriate.` : ''}
 
@@ -126,7 +102,7 @@ export const findAlternativeActivity = async (
     **Travel Context:**
     ${activityIndex === 0 && startAddress ? `Starts from "${startAddress}".` : previousActivity ? `Previous activity is "${previousActivity.title}".` : 'This is the first activity.'}
 
-    **Task:** Suggest a different activity to replace "${activityToReplace.title}". It must fit the schedule, interests, and weather. Use Google Search to find its details (reviews, lat/long). Estimate travel time in "travelFromPrevious".
+    **Task:** Suggest a different activity to replace "${activityToReplace.title}". It must fit the schedule, interests, and weather. Use Google Search to find its details (reviews, lat/long). Estimate travel time in "travelFromPrevious". Provide an estimated cost for this new activity in a "cost" object with "amount", "currency", and "details".
   `;
 
   try {
@@ -143,27 +119,6 @@ export const findAlternativeActivity = async (
     if (!jsonText) throw new Error("The AI returned an empty response.");
     
     const newActivity: Activity = JSON.parse(jsonText);
-
-    // Generate an image for the new activity
-    const imagePrompt = `A beautiful, high-quality, photorealistic 16:9 image of: ${newActivity.title}. The scene should represent the essence of the activity described as "${newActivity.description}" at the location "${newActivity.location || location}".`;
-    try {
-      const imageResponse = await ai.models.generateImages({
-        model: 'imagen-4.0-generate-001',
-        prompt: imagePrompt,
-        config: {
-          numberOfImages: 1,
-          outputMimeType: 'image/jpeg',
-          aspectRatio: '16:9',
-        },
-      });
-
-      if (imageResponse.generatedImages && imageResponse.generatedImages.length > 0) {
-        const base64ImageBytes = imageResponse.generatedImages[0].image.imageBytes;
-        newActivity.generatedImageUrl = `data:image/jpeg;base64,${base64ImageBytes}`;
-      }
-    } catch (imgErr) {
-      console.warn(`Could not generate image for alternative "${newActivity.title}":`, imgErr);
-    }
     
     return newActivity;
 

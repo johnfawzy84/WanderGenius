@@ -10,13 +10,11 @@ interface MapDisplayProps {
 const MapDisplay: React.FC<MapDisplayProps> = ({ locations }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
+  const featureGroupRef = useRef<any>(null); // To hold the markers layer
 
+  // Effect for map initialization (runs once)
   useEffect(() => {
-    if (!mapContainerRef.current || typeof L === 'undefined' || locations.length === 0) {
-      return;
-    }
-
-    if (!mapRef.current) {
+    if (mapContainerRef.current && !mapRef.current && typeof L !== 'undefined') {
       mapRef.current = L.map(mapContainerRef.current, {
         scrollWheelZoom: false,
       });
@@ -27,26 +25,43 @@ const MapDisplay: React.FC<MapDisplayProps> = ({ locations }) => {
         maxZoom: 20
       }).addTo(mapRef.current);
     }
-    
-    const map = mapRef.current;
 
-    const markers = locations.map(loc => {
-      const marker = L.marker([loc.latitude, loc.longitude]);
-      marker.bindPopup(`<b>${loc.title}</b><br>${loc.timeOfDay}`);
-      return marker;
-    });
-
-    const featureGroup = L.featureGroup(markers).addTo(map);
-
-    map.fitBounds(featureGroup.getBounds().pad(0.3));
-
+    // Cleanup on unmount
     return () => {
-      if (map) {
-        map.remove();
+      if (mapRef.current) {
+        mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [locations]);
+  }, []); // Empty dependency array ensures this runs only once
+
+  // Effect for updating markers when locations change
+  useEffect(() => {
+    if (mapRef.current && locations.length > 0) {
+      const map = mapRef.current;
+
+      // Clear previous markers
+      if (featureGroupRef.current) {
+        map.removeLayer(featureGroupRef.current);
+      }
+
+      // Create new markers
+      const markers = locations.map(loc => {
+        const marker = L.marker([loc.latitude, loc.longitude]);
+        marker.bindPopup(`<b>${loc.title}</b><br>${loc.timeOfDay}`);
+        return marker;
+      });
+
+      // Add new markers to a feature group
+      featureGroupRef.current = L.featureGroup(markers).addTo(map);
+
+      // Fit map to new bounds
+      map.fitBounds(featureGroupRef.current.getBounds().pad(0.3));
+    } else if (mapRef.current && featureGroupRef.current) {
+        // Clear markers if locations array becomes empty
+        mapRef.current.removeLayer(featureGroupRef.current);
+    }
+  }, [locations]); // This effect runs when locations change
 
   if (locations.length === 0) {
     return null;

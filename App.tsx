@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TripFormData, TripPlan, Activity } from './types';
 import { generateTripPlan, findAlternativeActivity } from './services/geminiService';
 import Header from './components/Header';
@@ -14,6 +14,20 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<TripFormData | null>(null);
   const [findingAlternativeIndex, setFindingAlternativeIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (window.location.hash.startsWith('#plan=')) {
+      try {
+        const encodedData = window.location.hash.substring(6);
+        const jsonData = atob(encodedData);
+        const loadedPlan: TripPlan = JSON.parse(jsonData);
+        setTripPlan(loadedPlan);
+      } catch (error) {
+        console.error('Failed to load shared plan from URL:', error);
+        setError('Could not load the shared trip plan. The link may be invalid.');
+      }
+    }
+  }, []);
 
   const handleFormSubmit = async (newFormData: TripFormData) => {
     setIsLoading(true);
@@ -45,7 +59,17 @@ const App: React.FC = () => {
       const newItinerary = [...tripPlan.itinerary];
       newItinerary[activityIndex] = newActivity;
 
-      setTripPlan({ ...tripPlan, itinerary: newItinerary });
+      // Recalculate total cost
+      const newTotalCostAmount = newItinerary.reduce((sum, activity) => {
+        return sum + (activity.cost?.amount || 0);
+      }, 0);
+      
+      const updatedCost = tripPlan.totalEstimatedCost 
+        ? { ...tripPlan.totalEstimatedCost, amount: newTotalCostAmount }
+        : { amount: newTotalCostAmount, currency: 'USD', details: 'Estimated total for the day' };
+
+
+      setTripPlan({ ...tripPlan, itinerary: newItinerary, totalEstimatedCost: updatedCost });
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Could not find an alternative.';

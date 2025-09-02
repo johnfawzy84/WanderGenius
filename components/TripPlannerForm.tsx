@@ -16,6 +16,7 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, isLoading }
     startTime: '09:00',
     endTime: '',
     tripDate: 'today',
+    likedLocationExample: '',
   });
 
   const generateDateOptions = () => {
@@ -112,6 +113,21 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, isLoading }
             placeholder="e.g., history, modern art, street food, relaxing"
             className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
             required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="likedLocationExample" className="block text-sm font-medium text-gray-300 mb-2">
+            Example of a place you liked (Optional)
+          </label>
+          <input
+            type="text"
+            id="likedLocationExample"
+            name="likedLocationExample"
+            value={formData.likedLocationExample || ''}
+            onChange={handleChange}
+            placeholder="e.g., 'The relaxed vibe of Greenwich Village'"
+            className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
           />
         </div>
 
