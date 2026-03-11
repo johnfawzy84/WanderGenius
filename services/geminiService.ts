@@ -152,7 +152,7 @@ export const generateTripPlan = async (formData: TripFormData, customApiKey?: st
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAiClient().models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
@@ -216,7 +216,7 @@ export const findAlternativeActivity = async (
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAiClient().models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
