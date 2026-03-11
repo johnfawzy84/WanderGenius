@@ -1,11 +1,17 @@
-FROM node:18-alpine AS builder
+FROM node:20-slim AS builder
 WORKDIR /app
 
-# Install dependencies and build the Vite app
+# Install small build dependencies for optional native modules
+RUN apt-get update && apt-get install -y python3 build-essential --no-install-recommends \
+	&& rm -rf /var/lib/apt/lists/*
+
+# Install dependencies first (cacheable)
 COPY package.json package-lock.json* ./
-COPY tsconfig.json vite.config.ts ./
+RUN npm ci
+
+# Copy rest of the source and build
 COPY . .
-RUN npm ci && npm run build
+RUN npm run build
 
 FROM nginx:stable-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
