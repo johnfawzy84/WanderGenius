@@ -226,6 +226,20 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, isLoading }
                 Kid-Friendly Itinerary
               </label>
             </div>
+            
+            <div className="pt-2 flex items-center">
+              <input
+                id="interactiveMode"
+                name="interactiveMode"
+                type="checkbox"
+                checked={formData.interactiveMode || false}
+                onChange={handleChange}
+                className="w-4 h-4 text-purple-600 bg-gray-900 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
+              />
+              <label htmlFor="interactiveMode" className="ml-2 text-sm font-medium text-gray-300">
+                Step-by-Step Interactive Mode (Choose activities one by one)
+              </label>
+            </div>
           </div>
         </details>
         

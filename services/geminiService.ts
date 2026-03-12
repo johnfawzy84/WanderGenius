@@ -1,6 +1,6 @@
 
-import { GoogleGenAI } from "@google/genai";
-import { TripFormData, TripPlan, Activity } from '../types';
+import { GoogleGenAI, Type } from "@google/genai";
+import { TripFormData, TripPlan, Activity, NextActivityResponse } from '../types';
 
 const getAI = (customApiKey?: string) => {
   const key = customApiKey || process.env.API_KEY;
@@ -8,6 +8,111 @@ const getAI = (customApiKey?: string) => {
     throw new Error("API_KEY environment variable not set and no custom key provided");
   }
   return new GoogleGenAI({ apiKey: key });
+};
+
+export const generateNextActivityOptions = async (
+  formData: TripFormData,
+  currentItinerary: Activity[],
+  customApiKey?: string
+): Promise<NextActivityResponse> => {
+  const ai = getAI(customApiKey);
+  const { location, activityType, interests, isKidFriendly, startAddress, startTime, endTime, tripDate, likedLocationExample } = formData;
+  const friendlyTripDate = tripDate === 'today' ? 'today' : new Date(tripDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+  const prompt = `
+    You are an expert travel planner. The user is planning a day trip to ${location}.
+    ${startAddress ? `Starting address: ${startAddress}` : ''}
+    Interests: ${interests}
+    Date: ${friendlyTripDate}
+    ${startTime ? `Start time: ${startTime}` : ''}
+    ${endTime ? `End time/duration: ${endTime}` : ''}
+    Activity Type: ${activityType}
+    Kid Friendly: ${isKidFriendly ? 'Yes' : 'No'}
+    ${likedLocationExample ? `Inspiration: The user likes places similar to "${likedLocationExample}".` : ''}
+
+    Here is the itinerary so far:
+    ${currentItinerary.length === 0 ? 'No activities planned yet. Suggest the FIRST activity of the day.' : JSON.stringify(currentItinerary, null, 2)}
+
+    Based on the time of the last activity, the user's interests, and the location, suggest 3 distinct options for the NEXT activity.
+    If the day is already full (e.g., it's late evening, or the requested duration is met), set 'isEndOfDay' to true and provide an 'endOfDayMessage'.
+
+    Return the response in JSON format matching this schema:
+    {
+      "isEndOfDay": boolean,
+      "endOfDayMessage": "string (optional)",
+      "options": [
+        {
+          "title": "string",
+          "location": "string",
+          "description": "string",
+          "timeOfDay": "string (e.g., 10:00 AM - 11:30 AM)",
+          "cost": { "amount": number, "currency": "string", "details": "string" },
+          "reviews": { "rating": number, "summary": "string" },
+          "travelFromPrevious": { "mode": "string", "duration": "string" } // Omit for the first activity
+        }
+      ]
+    }
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.1-pro-preview',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            isEndOfDay: { type: Type.BOOLEAN },
+            endOfDayMessage: { type: Type.STRING },
+            options: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  title: { type: Type.STRING },
+                  location: { type: Type.STRING },
+                  description: { type: Type.STRING },
+                  timeOfDay: { type: Type.STRING },
+                  cost: {
+                    type: Type.OBJECT,
+                    properties: {
+                      amount: { type: Type.NUMBER },
+                      currency: { type: Type.STRING },
+                      details: { type: Type.STRING }
+                    }
+                  },
+                  reviews: {
+                    type: Type.OBJECT,
+                    properties: {
+                      rating: { type: Type.NUMBER },
+                      summary: { type: Type.STRING }
+                    }
+                  },
+                  travelFromPrevious: {
+                    type: Type.OBJECT,
+                    properties: {
+                      mode: { type: Type.STRING },
+                      duration: { type: Type.STRING }
+                    }
+                  }
+                },
+                required: ["title", "location", "description", "timeOfDay"]
+              }
+            }
+          },
+          required: ["isEndOfDay", "options"]
+        }
+      }
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("No response from Gemini");
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Error generating next activity options:", error);
+    throw new Error("Failed to generate options. Please try again.");
+  }
 };
 
 export const generateTripPlan = async (formData: TripFormData, customApiKey?: string): Promise<TripPlan> => {

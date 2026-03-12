@@ -9,6 +9,7 @@ export interface TripFormData {
   endTime?: string;
   tripDate: string;
   likedLocationExample?: string;
+  interactiveMode?: boolean;
 }
 
 export interface Cost {
@@ -37,6 +38,12 @@ export interface Activity {
     condition?: string;
   };
   cost?: Cost;
+}
+
+export interface NextActivityResponse {
+  isEndOfDay: boolean;
+  endOfDayMessage?: string;
+  options: Activity[];
 }
 
 export interface WeatherInfo {
