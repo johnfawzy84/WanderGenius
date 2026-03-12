@@ -87,34 +87,50 @@ const App: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col font-sans">
-      <Header customApiKey={customApiKey} setCustomApiKey={setCustomApiKey} />
-      <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
-        <div className="max-w-3xl mx-auto">
-          <p className="text-center text-lg text-gray-400 mb-8">
-            Describe your ideal day out, and our AI will craft a personalized itinerary just for you.
-          </p>
-          <TripPlannerForm onSubmit={handleFormSubmit} isLoading={isLoading} />
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col font-sans relative overflow-x-hidden">
+      {/* Background decoration */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-purple-900/20 blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-900/20 blur-[120px]"></div>
+      </div>
 
-          {isLoading && <LoadingSpinner />}
-          
-          {error && (
-            <div className="mt-8 bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-center">
-              <h3 className="font-bold">Operation Failed</h3>
-              <p>{error}</p>
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <Header customApiKey={customApiKey} setCustomApiKey={setCustomApiKey} />
+        <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Plan your perfect day in seconds</h2>
+              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                Describe your ideal day out, and our AI will craft a personalized, optimized itinerary just for you.
+              </p>
             </div>
-          )}
+            <TripPlannerForm onSubmit={handleFormSubmit} isLoading={isLoading} />
 
-          {tripPlan && !isLoading && (
-            <TripPlanDisplay 
-              plan={tripPlan} 
-              onFindAlternative={handleFindAlternative}
-              findingAlternativeIndex={findingAlternativeIndex}
-            />
-          )}
-        </div>
-      </main>
-      <Footer />
+            {isLoading && <LoadingSpinner />}
+            
+            {error && (
+              <div className="mt-8 bg-red-900/30 border border-red-700/50 text-red-300 px-6 py-4 rounded-xl text-center backdrop-blur-sm">
+                <h3 className="font-bold text-lg mb-1 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  Operation Failed
+                </h3>
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
+            {tripPlan && !isLoading && (
+              <TripPlanDisplay 
+                plan={tripPlan} 
+                onFindAlternative={handleFindAlternative}
+                findingAlternativeIndex={findingAlternativeIndex}
+              />
+            )}
+          </div>
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 };

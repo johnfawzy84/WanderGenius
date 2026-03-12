@@ -32,18 +32,28 @@ const Header: React.FC<HeaderProps> = ({ customApiKey, setCustomApiKey }) => {
   };
 
   return (
-    <header className="bg-gray-900/80 backdrop-blur-sm shadow-lg shadow-purple-900/10 py-6 relative z-50">
-      <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
-        <div className="flex-1 hidden md:block"></div>
-        <div className="text-center flex-1 whitespace-nowrap">
-          <h1 className="text-4xl md:text-5xl font-bold">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
-              WanderGenius
-            </span>
-          </h1>
-          <p className="text-gray-400 mt-2 text-md md:text-lg">Your AI-Powered One-Day Trip Planner</p>
+    <header className="bg-gray-900/80 backdrop-blur-md shadow-lg shadow-purple-900/10 py-4 sticky top-0 z-50 border-b border-gray-800">
+      <div className="container mx-auto px-4 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"></path>
+              <circle cx="12" cy="9" r="2.5"></circle>
+              <path d="M12 22v-3"></path>
+              <path d="M9 19h6"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+                WanderGenius
+              </span>
+            </h1>
+            <p className="text-xs text-gray-400 hidden sm:block">AI One-Day Trip Planner</p>
+          </div>
         </div>
-        <div className="flex-1 flex justify-center md:justify-end mt-4 md:mt-0 relative">
+        
+        <div className="relative">
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="text-xs md:text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 py-2 px-4 rounded-md border border-gray-700 transition-colors flex items-center"

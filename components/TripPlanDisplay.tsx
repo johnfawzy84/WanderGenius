@@ -32,80 +32,83 @@ const ActivityCard: React.FC<{
   isFindingAlternative: boolean;
 }> = ({ activity, index, onFindAlternative, isFindingAlternative }) => {
     return (
-        <div className="bg-gray-800/60 rounded-lg shadow-lg transition-transform duration-300 hover:scale-102 hover:shadow-xl border border-gray-700/50">
-            <div className="p-5">
-                <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold text-white pr-4">
+        <div className="bg-gray-800/40 backdrop-blur-md rounded-2xl shadow-lg transition-all duration-300 hover:shadow-purple-500/10 hover:border-purple-500/30 border border-gray-700/50 overflow-hidden group">
+            <div className="p-6">
+                <div className="flex justify-between items-start mb-3">
+                    <h3 className="text-xl font-bold text-white pr-4 group-hover:text-purple-300 transition-colors">
                         <a 
                             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.title + (activity.location ? ' ' + activity.location : ''))}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:text-purple-400 transition-colors"
+                            className="hover:underline"
                             title="View on Google Maps"
                         >
                             {activity.title}
                         </a>
                     </h3>
                     <div className="text-right flex-shrink-0">
-                        <span className="text-sm font-semibold bg-gray-700 text-purple-300 py-1 px-3 rounded-full whitespace-nowrap">{activity.timeOfDay}</span>
+                        <span className="text-xs font-bold tracking-wider uppercase bg-purple-900/40 text-purple-300 py-1.5 px-3 rounded-lg border border-purple-700/30 whitespace-nowrap">{activity.timeOfDay}</span>
                         {activity.weatherOnSite && (
-                            <div className="mt-2 flex items-center justify-end space-x-2 text-gray-300">
+                            <div className="mt-2 flex items-center justify-end space-x-2 text-gray-300 bg-gray-900/50 py-1 px-2 rounded-lg border border-gray-700/50">
                                 <span className="text-lg" title={activity.weatherOnSite.condition}>{getWeatherIcon(activity.weatherOnSite.condition)}</span>
-                                <span className="font-semibold">{activity.weatherOnSite.temperature}</span>
+                                <span className="font-semibold text-sm">{activity.weatherOnSite.temperature}</span>
                             </div>
                         )}
                     </div>
                 </div>
                 {activity.location && (
-                    <p className="text-sm text-gray-400 mb-3 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <p className="text-sm text-gray-400 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                         </svg>
                         <a 
                             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:text-gray-300 hover:underline transition-colors"
+                            className="hover:text-purple-400 hover:underline transition-colors line-clamp-1"
                             title="View on Google Maps"
                         >
                             {activity.location}
                         </a>
                     </p>
                 )}
-                <p className="text-gray-300 leading-relaxed mb-4">{activity.description}</p>
+                <p className="text-gray-300 leading-relaxed mb-5 text-sm md:text-base">{activity.description}</p>
                 
-                {activity.cost && (
-                    <div className="mb-4">
-                        <p className="text-sm font-semibold text-gray-300">
-                            <span className="text-purple-400">Est. Cost: </span>
-                            {activity.cost.amount > 0 ? 
-                                `${new Intl.NumberFormat('en-US', { style: 'currency', currency: activity.cost.currency, minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(activity.cost.amount)}` 
-                                : 'Free'}
-                            {activity.cost.details && <span className="text-gray-400 font-normal ml-2">({activity.cost.details})</span>}
-                        </p>
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
+                    {activity.cost && (
+                        <div className="flex items-center bg-gray-900/40 py-1.5 px-3 rounded-lg border border-gray-700/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-sm font-medium text-gray-300">
+                                {activity.cost.amount > 0 ? 
+                                    `${new Intl.NumberFormat('en-US', { style: 'currency', currency: activity.cost.currency, minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(activity.cost.amount)}` 
+                                    : 'Free'}
+                                {activity.cost.details && <span className="text-gray-500 font-normal ml-1 truncate max-w-[150px] inline-block align-bottom">({activity.cost.details})</span>}
+                            </p>
+                        </div>
+                    )}
+
+                    {activity.reviews && typeof activity.reviews.rating === 'number' && (
+                        <div className="flex items-center bg-gray-900/40 py-1.5 px-3 rounded-lg border border-gray-700/50">
+                            <StarRating rating={activity.reviews.rating} />
+                            <span className="text-sm font-bold text-white ml-2">{activity.reviews.rating.toFixed(1)}</span>
+                        </div>
+                    )}
+                </div>
+
+                {activity.reviews?.summary && (
+                    <div className="mb-5 bg-gray-900/30 p-3 rounded-lg border border-gray-700/30 border-l-2 border-l-yellow-500/50">
+                        <p className="text-sm text-gray-400 italic">"{activity.reviews.summary}"</p>
                     </div>
                 )}
 
-                {activity.reviews && (
-                    <div className="mb-4">
-                        {typeof activity.reviews.rating === 'number' && (
-                            <div className="flex items-center space-x-2">
-                                <StarRating rating={activity.reviews.rating} />
-                                <span className="text-sm font-bold text-white">{activity.reviews.rating.toFixed(1)} / 5</span>
-                            </div>
-                        )}
-                        {activity.reviews.summary && (
-                            <p className="text-sm text-gray-400 mt-1 italic">"{activity.reviews.summary}"</p>
-                        )}
-                    </div>
-                )}
 
-
-                <div className="pt-4 border-t border-gray-700 flex justify-end">
+                <div className="pt-4 border-t border-gray-700/50 flex justify-end">
                     <button 
                       onClick={() => onFindAlternative(index)}
                       disabled={isFindingAlternative}
-                      className="inline-flex items-center justify-center text-sm font-medium text-purple-300 hover:text-white bg-purple-900/30 hover:bg-purple-800/50 rounded-md px-3 py-1.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-wait"
+                      className="inline-flex items-center justify-center text-xs font-semibold uppercase tracking-wider text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg px-4 py-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-wait border border-gray-700"
                     >
                       {isFindingAlternative ? (
                         <>
@@ -222,15 +225,18 @@ const TripPlanDisplay: React.FC<TripPlanDisplayProps> = ({ plan, onFindAlternati
             <React.Fragment key={index}>
               {/* Travel Connector */}
               {activity.travelFromPrevious && (
-                <div className="relative h-24">
-                  <div className="absolute left-4 top-0 w-0.5 h-full bg-gray-700"></div>
+                <div className="relative h-20">
+                  <div className="absolute left-4 top-0 w-0.5 h-full bg-gradient-to-b from-purple-500/50 to-blue-500/50"></div>
                   <div className="relative top-1/2 -translate-y-1/2 pl-12 flex items-center space-x-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div className="bg-gray-800 px-3 py-1 rounded-md">
-                        <p className="font-semibold text-gray-300">{activity.travelFromPrevious.duration}</p>
-                        <p className="text-xs text-gray-400">{activity.travelFromPrevious.mode}</p>
+                    <div className="bg-gray-800/80 p-2 rounded-full border border-gray-700 shadow-lg">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div className="bg-gray-800/60 backdrop-blur-sm px-4 py-1.5 rounded-full border border-gray-700/50 flex items-center space-x-2">
+                        <p className="font-bold text-sm text-gray-200">{activity.travelFromPrevious.duration}</p>
+                        <span className="text-gray-600">•</span>
+                        <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">{activity.travelFromPrevious.mode}</p>
                     </div>
                   </div>
                 </div>
@@ -238,8 +244,8 @@ const TripPlanDisplay: React.FC<TripPlanDisplayProps> = ({ plan, onFindAlternati
 
               {/* Activity Node */}
               <div className="relative">
-                <div className="absolute left-0 top-5 w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center ring-4 ring-gray-900">
-                    <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+                <div className="absolute left-0 top-6 w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center ring-4 ring-gray-900 z-10">
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>
                 </div>
                 <div className="ml-12">
                     <ActivityCard 

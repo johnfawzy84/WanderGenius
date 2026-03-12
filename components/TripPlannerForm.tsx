@@ -67,121 +67,73 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, isLoading }
   };
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-2xl border border-gray-700">
+    <div className="bg-gray-800/40 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-2xl border border-gray-700/50">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label htmlFor="location" className="block text-sm font-medium text-gray-300 mb-2">
-            Location
-          </label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="e.g., Paris, or 'within 2 hours of London'"
-            className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="startAddress" className="block text-sm font-medium text-gray-300 mb-2">
-            Starting Address (Optional)
-          </label>
-          <input
-            type="text"
-            id="startAddress"
-            name="startAddress"
-            value={formData.startAddress || ''}
-            onChange={handleChange}
-            placeholder="e.g., your hotel or home address"
-            className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="interests" className="block text-sm font-medium text-gray-300 mb-2">
-            Interests & Vibe
-          </label>
-          <input
-            type="text"
-            id="interests"
-            name="interests"
-            value={formData.interests}
-            onChange={handleChange}
-            placeholder="e.g., history, modern art, street food, relaxing"
-            className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="likedLocationExample" className="block text-sm font-medium text-gray-300 mb-2">
-            Example of a place you liked (Optional)
-          </label>
-          <input
-            type="text"
-            id="likedLocationExample"
-            name="likedLocationExample"
-            value={formData.likedLocationExample || ''}
-            onChange={handleChange}
-            placeholder="e.g., 'The relaxed vibe of Greenwich Village'"
-            className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="tripDate" className="block text-sm font-medium text-gray-300 mb-2">
-            Date of Trip
-          </label>
-          <select
-            id="tripDate"
-            name="tripDate"
-            value={formData.tripDate}
-            onChange={handleChange}
-            className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
-          >
-            {dateOptions.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div>
-            <label htmlFor="startTime" className="block text-sm font-medium text-gray-300 mb-2">
-              Start Time (Optional)
-            </label>
-            <input
-              type="time"
-              id="startTime"
-              name="startTime"
-              value={formData.startTime || ''}
-              onChange={handleChange}
-              className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="endTime" className="block text-sm font-medium text-gray-300 mb-2">
-              End Time / Duration (Optional)
+          <div className="col-span-1 md:col-span-2">
+            <label htmlFor="location" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Destination
             </label>
             <input
               type="text"
-              id="endTime"
-              name="endTime"
-              value={formData.endTime || ''}
+              id="location"
+              name="location"
+              value={formData.location}
               onChange={handleChange}
-              placeholder="e.g., 5:00 PM or 8 hours"
-              className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
+              placeholder="e.g., Paris, or 'within 2 hours of London'"
+              className="w-full bg-gray-900/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              required
             />
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="col-span-1 md:col-span-2">
+            <label htmlFor="interests" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Vibe & Interests
+            </label>
+            <input
+              type="text"
+              id="interests"
+              name="interests"
+              value={formData.interests}
+              onChange={handleChange}
+              placeholder="e.g., history, modern art, street food, relaxing"
+              className="w-full bg-gray-900/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              required
+            />
+          </div>
+
           <div>
-            <label htmlFor="activityType" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="tripDate" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Date
+            </label>
+            <select
+              id="tripDate"
+              name="tripDate"
+              value={formData.tripDate}
+              onChange={handleChange}
+              className="w-full bg-gray-900/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 appearance-none"
+            >
+              {dateOptions.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="activityType" className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+              </svg>
               Activity Type
             </label>
             <select
@@ -189,39 +141,109 @@ const TripPlannerForm: React.FC<TripPlannerFormProps> = ({ onSubmit, isLoading }
               name="activityType"
               value={formData.activityType}
               onChange={handleChange}
-              className="w-full bg-gray-900/70 border border-gray-600 rounded-md py-2 px-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
+              className="w-full bg-gray-900/50 border border-gray-600/50 rounded-xl py-3 px-4 text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-200 appearance-none"
             >
               <option value="mix">Mix of Indoor & Outdoor</option>
               <option value="indoor">Mainly Indoor</option>
               <option value="outdoor">Mainly Outdoor</option>
             </select>
           </div>
-          <div className="flex items-center justify-center md:pt-6">
-            <div className="flex items-center h-5">
+        </div>
+
+        <details className="group border border-gray-700/50 rounded-xl bg-gray-900/30 overflow-hidden">
+          <summary className="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-medium text-gray-300 hover:text-white transition-colors">
+            <span className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              Advanced Options
+            </span>
+            <span className="transition group-open:rotate-180">
+              <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+            </span>
+          </summary>
+          <div className="px-5 pb-5 pt-2 border-t border-gray-700/50 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="startAddress" className="block text-xs font-medium text-gray-400 mb-1">Starting Address</label>
+                <input
+                  type="text"
+                  id="startAddress"
+                  name="startAddress"
+                  value={formData.startAddress || ''}
+                  onChange={handleChange}
+                  placeholder="e.g., your hotel"
+                  className="w-full bg-gray-900/50 border border-gray-600/50 rounded-lg py-2 px-3 text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label htmlFor="likedLocationExample" className="block text-xs font-medium text-gray-400 mb-1">Place you liked</label>
+                <input
+                  type="text"
+                  id="likedLocationExample"
+                  name="likedLocationExample"
+                  value={formData.likedLocationExample || ''}
+                  onChange={handleChange}
+                  placeholder="e.g., Greenwich Village"
+                  className="w-full bg-gray-900/50 border border-gray-600/50 rounded-lg py-2 px-3 text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label htmlFor="startTime" className="block text-xs font-medium text-gray-400 mb-1">Start Time</label>
+                <input
+                  type="time"
+                  id="startTime"
+                  name="startTime"
+                  value={formData.startTime || ''}
+                  onChange={handleChange}
+                  className="w-full bg-gray-900/50 border border-gray-600/50 rounded-lg py-2 px-3 text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label htmlFor="endTime" className="block text-xs font-medium text-gray-400 mb-1">End Time / Duration</label>
+                <input
+                  type="text"
+                  id="endTime"
+                  name="endTime"
+                  value={formData.endTime || ''}
+                  onChange={handleChange}
+                  placeholder="e.g., 5:00 PM or 8 hours"
+                  className="w-full bg-gray-900/50 border border-gray-600/50 rounded-lg py-2 px-3 text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            <div className="pt-2 flex items-center">
               <input
                 id="isKidFriendly"
                 name="isKidFriendly"
                 type="checkbox"
                 checked={formData.isKidFriendly}
                 onChange={handleChange}
-                className="focus:ring-blue-500 h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded"
+                className="w-4 h-4 text-purple-600 bg-gray-900 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
               />
-            </div>
-            <div className="ml-3 text-sm">
-              <label htmlFor="isKidFriendly" className="font-medium text-gray-300">
-                Kid-Friendly?
+              <label htmlFor="isKidFriendly" className="ml-2 text-sm font-medium text-gray-300">
+                Kid-Friendly Itinerary
               </label>
             </div>
           </div>
-        </div>
+        </details>
         
-        <div className="pt-2">
+        <div className="pt-4">
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 rounded-lg py-3 px-5 transition-all duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+            className="w-full font-bold text-lg text-white bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 rounded-xl py-4 px-6 shadow-lg shadow-purple-500/25 transition-all duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            {isLoading ? 'Crafting Your Adventure...' : 'Generate Trip Plan'}
+            {isLoading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Crafting Your Adventure...
+              </span>
+            ) : 'Generate Trip Plan'}
           </button>
         </div>
       </form>
