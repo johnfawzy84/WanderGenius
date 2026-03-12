@@ -2,13 +2,16 @@
 import { GoogleGenAI } from "@google/genai";
 import { TripFormData, TripPlan, Activity } from '../types';
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set");
-}
+const getAI = (customApiKey?: string) => {
+  const key = customApiKey || process.env.API_KEY;
+  if (!key) {
+    throw new Error("API_KEY environment variable not set and no custom key provided");
+  }
+  return new GoogleGenAI({ apiKey: key });
+};
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
-export const generateTripPlan = async (formData: TripFormData): Promise<TripPlan> => {
+export const generateTripPlan = async (formData: TripFormData, customApiKey?: string): Promise<TripPlan> => {
+  const ai = getAI(customApiKey);
   const { location, activityType, interests, isKidFriendly, startAddress, startTime, endTime, tripDate, likedLocationExample } = formData;
 
   const friendlyTripDate = tripDate === 'today' ? 'today' : new Date(tripDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -80,7 +83,9 @@ export const findAlternativeActivity = async (
   currentPlan: TripPlan,
   activityToReplace: Activity,
   activityIndex: number,
+  customApiKey?: string
 ): Promise<Activity> => {
+  const ai = getAI(customApiKey);
   const { location, activityType, interests, isKidFriendly, startAddress, startTime, endTime, tripDate, likedLocationExample } = formData;
   const previousActivity = activityIndex > 0 ? currentPlan.itinerary[activityIndex - 1] : null;
   const friendlyTripDate = tripDate === 'today' ? 'today' : new Date(tripDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });

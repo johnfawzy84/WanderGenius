@@ -35,7 +35,17 @@ const ActivityCard: React.FC<{
         <div className="bg-gray-800/60 rounded-lg shadow-lg transition-transform duration-300 hover:scale-102 hover:shadow-xl border border-gray-700/50">
             <div className="p-5">
                 <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold text-white pr-4">{activity.title}</h3>
+                    <h3 className="text-xl font-bold text-white pr-4">
+                        <a 
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.title + (activity.location ? ' ' + activity.location : ''))}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-purple-400 transition-colors"
+                            title="View on Google Maps"
+                        >
+                            {activity.title}
+                        </a>
+                    </h3>
                     <div className="text-right flex-shrink-0">
                         <span className="text-sm font-semibold bg-gray-700 text-purple-300 py-1 px-3 rounded-full whitespace-nowrap">{activity.timeOfDay}</span>
                         {activity.weatherOnSite && (
@@ -51,7 +61,15 @@ const ActivityCard: React.FC<{
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                         </svg>
-                        {activity.location}
+                        <a 
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activity.location)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-gray-300 hover:underline transition-colors"
+                            title="View on Google Maps"
+                        >
+                            {activity.location}
+                        </a>
                     </p>
                 )}
                 <p className="text-gray-300 leading-relaxed mb-4">{activity.description}</p>

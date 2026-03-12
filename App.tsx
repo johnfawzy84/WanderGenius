@@ -14,6 +14,11 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<TripFormData | null>(null);
   const [findingAlternativeIndex, setFindingAlternativeIndex] = useState<number | null>(null);
+  const [customApiKey, setCustomApiKey] = useState<string>(() => localStorage.getItem('customApiKey') || '');
+
+  useEffect(() => {
+    localStorage.setItem('customApiKey', customApiKey);
+  }, [customApiKey]);
 
   useEffect(() => {
     if (window.location.hash.startsWith('#plan=')) {
@@ -36,7 +41,7 @@ const App: React.FC = () => {
     setFormData(newFormData);
 
     try {
-      const plan = await generateTripPlan(newFormData);
+      const plan = await generateTripPlan(newFormData, customApiKey);
       setTripPlan(plan);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred. Please try again.');
@@ -54,7 +59,7 @@ const App: React.FC = () => {
 
     try {
       const activityToReplace = tripPlan.itinerary[activityIndex];
-      const newActivity = await findAlternativeActivity(formData, tripPlan, activityToReplace, activityIndex);
+      const newActivity = await findAlternativeActivity(formData, tripPlan, activityToReplace, activityIndex, customApiKey);
 
       const newItinerary = [...tripPlan.itinerary];
       newItinerary[activityIndex] = newActivity;
@@ -83,7 +88,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col font-sans">
-      <Header />
+      <Header customApiKey={customApiKey} setCustomApiKey={setCustomApiKey} />
       <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-3xl mx-auto">
           <p className="text-center text-lg text-gray-400 mb-8">
