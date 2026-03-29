@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { TripFormData, TripPlan, Activity, NextActivityResponse } from '../types';
 
@@ -56,7 +55,7 @@ export const generateNextActivityOptions = async (
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3.1-pro-preview',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -136,7 +135,7 @@ export const generateTripPlan = async (formData: TripFormData, customApiKey?: st
     4.  **For each activity, estimate travel time** in "travelFromPrevious".
     5.  **For each activity, use Google Search to find details**: a review summary/rating and latitude/longitude.
     6.  **For each activity, provide a specific weather forecast** in "weatherOnSite".
-    7.  **For each activity, estimate the cost**. Provide a "cost" object with "amount", "currency" (e.g., "USD"), and "details" (e.g., "per person" or "for entry"). If an activity is free, the amount should be 0.
+    7.  **For each activity, provide an estimated cost**. Provide a "cost" object with "amount", "currency" (e.g., "USD"), and "details" (e.g., "per person" or "for entry"). If an activity is free, the amount should be 0.
     8.  **Calculate and provide a "totalEstimatedCost"** object for the entire day's plan, summing up the costs of all activities.
 
     **User Preferences:**
@@ -152,8 +151,8 @@ export const generateTripPlan = async (formData: TripFormData, customApiKey?: st
   `;
 
   try {
-    const response = await getAiClient().models.generateContent({
-      model: 'gemini-2.5-flash',
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
         tools: [{googleSearch: {}}],
@@ -216,8 +215,8 @@ export const findAlternativeActivity = async (
   `;
 
   try {
-    const response = await getAiClient().models.generateContent({
-      model: 'gemini-2.5-flash',
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
         tools: [{googleSearch: {}}],
