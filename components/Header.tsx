@@ -15,9 +15,18 @@ interface HeaderProps {
   setCustomApiKey: (key: string) => void;
 }
 
+import { verifyApiKey } from '../services/geminiService';
+
 const Header: React.FC<HeaderProps> = ({ customApiKey, setCustomApiKey }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasAiStudio, setHasAiStudio] = useState(false);
+  const [tempApiKey, setTempApiKey] = useState(customApiKey);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    setTempApiKey(customApiKey);
+  }, [customApiKey]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && (window as any).aistudio) {
@@ -83,13 +92,47 @@ const Header: React.FC<HeaderProps> = ({ customApiKey, setCustomApiKey }) => {
 
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Custom Gemini API Key</label>
-                <input
-                  type="password"
-                  value={customApiKey}
-                  onChange={(e) => setCustomApiKey(e.target.value)}
-                  placeholder="AIzaSy..."
-                  className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
-                />
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="password"
+                    value={tempApiKey}
+                    onChange={(e) => {
+                      setTempApiKey(e.target.value);
+                      setVerificationStatus('idle');
+                    }}
+                    placeholder="AIzaSy..."
+                    className="flex-1 bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!tempApiKey) {
+                        setCustomApiKey('');
+                        setVerificationStatus('idle');
+                        return;
+                      }
+                      setIsVerifying(true);
+                      setVerificationStatus('idle');
+                      const isValid = await verifyApiKey(tempApiKey);
+                      if (isValid) {
+                        setCustomApiKey(tempApiKey);
+                        setVerificationStatus('success');
+                      } else {
+                        setVerificationStatus('error');
+                      }
+                      setIsVerifying(false);
+                    }}
+                    disabled={isVerifying}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm py-2 px-3 rounded transition-colors whitespace-nowrap"
+                  >
+                    {isVerifying ? 'Verifying...' : 'Verify & Save'}
+                  </button>
+                </div>
+                {verificationStatus === 'success' && (
+                  <p className="text-xs text-green-400 mt-1">API Key is valid and saved!</p>
+                )}
+                {verificationStatus === 'error' && (
+                  <p className="text-xs text-red-400 mt-1">Invalid API Key. Please check and try again.</p>
+                )}
                 <p className="text-[10px] text-gray-500 mt-1">
                   Stored locally in your browser. Leave empty to use the default key.
                 </p>

@@ -9,6 +9,21 @@ const getAI = (customApiKey?: string) => {
   return new GoogleGenAI({ apiKey: key });
 };
 
+export const verifyApiKey = async (apiKey: string): Promise<boolean> => {
+  if (!apiKey) return false;
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: 'hi',
+    });
+    return true;
+  } catch (error) {
+    console.error("API Key verification failed:", error);
+    return false;
+  }
+};
+
 export const generateNextActivityOptions = async (
   formData: TripFormData,
   currentItinerary: Activity[],
