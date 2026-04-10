@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ customApiKey, setCustomApiKey }) => {
 
               <div>
                 <label className="block text-xs text-gray-400 mb-1">Custom Gemini API Key</label>
-                <div className="flex gap-2 mb-2">
+                <div className="flex flex-col gap-3 mb-2">
                   <input
                     type="password"
                     value={tempApiKey}
@@ -122,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({ customApiKey, setCustomApiKey }) => {
                       setIsVerifying(false);
                     }}
                     disabled={isVerifying}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm py-2 px-3 rounded transition-colors whitespace-nowrap"
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm py-2 px-3 rounded transition-colors whitespace-nowrap w-full"
                   >
                     {isVerifying ? 'Verifying...' : 'Verify & Save'}
                   </button>
